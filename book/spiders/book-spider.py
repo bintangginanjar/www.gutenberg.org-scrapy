@@ -51,7 +51,8 @@ class BookSpider(scrapy.Spider):
 
             yield response.follow(bookUrl, self.parseBook)
         '''
-        #navList = response.css('div.padded > span.links')        
+        #navList = response.css('div.padded > span.links')
+        bookCount = 0;
         nextCount = 0;
         for nav in response.css('div.padded > span.links'):
             rows = response.css('li.booklink')
@@ -60,6 +61,7 @@ class BookSpider(scrapy.Spider):
                 nextCount = nextCount + 1;
                 #print(nav.css('a::attr(href)').get())
                 for row in rows:
+                    bookCount = bookCount + 1
                     bookUrl = row.css('a::attr(href)').get()
 
                     yield response.follow(bookUrl, self.parseBook)
@@ -69,11 +71,13 @@ class BookSpider(scrapy.Spider):
                 #print('Next page available')            
             else:
                 for row in rows:
+                    bookCount = bookCount + 1
                     bookUrl = row.css('a::attr(href)').get()
 
                     yield response.follow(bookUrl, self.parseBook)                
                 #print('Next page not available')
-            
+                
+            print(bookCount)            
             #print(nextCount)
 
 
