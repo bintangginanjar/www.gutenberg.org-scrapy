@@ -44,41 +44,15 @@ class BookSpider(scrapy.Spider):
             yield response.follow(shelfUrl, self.parseShelf)           
 
 
-    def parseShelf(self, response):
-        '''
+    def parseShelf(self, response):        
         for row in response.css('li.booklink'):
             bookUrl = row.css('a::attr(href)').get()
 
             yield response.follow(bookUrl, self.parseBook)
-        '''
-        #navList = response.css('div.padded > span.links')
-        bookCount = 0;
-        nextCount = 0;
+                
         for nav in response.css('div.padded > span.links'):
-            rows = response.css('li.booklink')
-            #print(navList[0].css('a::text').get())            
-            if ((nav.css('a::text').get() == 'Next') and (nextCount < 2)):
-                nextCount = nextCount + 1;
-                #print(nav.css('a::attr(href)').get())
-                for row in rows:
-                    bookCount = bookCount + 1
-                    bookUrl = row.css('a::attr(href)').get()
-
-                    yield response.follow(bookUrl, self.parseBook)
-                
-                yield response.follow(nav.css('a::attr(href)').get(), self.parseShelf)
-                #yield response.follow()
-                #print('Next page available')            
-            else:
-                for row in rows:
-                    bookCount = bookCount + 1
-                    bookUrl = row.css('a::attr(href)').get()
-
-                    yield response.follow(bookUrl, self.parseBook)                
-                #print('Next page not available')
-                
-            print(bookCount)            
-            #print(nextCount)
+            if ((nav.css('a::text').get() == 'Next')):                                      
+                yield response.follow(nav.css('a::attr(href)').get(), self.parseShelf)        
 
 
     def parseBook(self, response):
