@@ -31,12 +31,36 @@ class BookSpider(scrapy.Spider):
 
     def start_requests(self):
 
-        baseUrl = 'https://www.gutenberg.org/ebooks/bookshelf/'
+        for bookId in range(1, 66000):
+            #baseUrl = 'https://www.gutenberg.org/ebooks/bookshelf/'
+            baseUrl = 'https://www.gutenberg.org/ebooks/'
+            targetUrl = baseUrl + '/' + str(bookId)
 
-        prodResponse = scrapy.Request(baseUrl, callback = self.parse)
+            #prodResponse = scrapy.Request(baseUrl, callback = self.parse)
+            prodResponse = scrapy.Request(targetUrl, callback = self.parse)
 
-        yield prodResponse
+            yield prodResponse
 
+
+    def parse(self, response):        
+        item = TableItem()
+
+        tempDict = dict()
+
+        for row in response.xpath('//table[@class="bibrec"]//tr'):
+            #print(row.css('td > a::text').get())
+            
+            if (row.css('td > a::text').get()):
+                tempDict[row.xpath('th//text()').get()] = row.css('td > a::text').get()
+            else:
+                tempDict[row.xpath('th//text()').get()] = row.xpath('td//text()').get()                    
+            
+            item['row'] = tempDict
+
+        return item
+
+
+    '''
     def parse(self, response):
 
         for row in response.css('div.bookshelf_pages > ul > li'):
@@ -71,3 +95,4 @@ class BookSpider(scrapy.Spider):
             item['row'] = tempDict
 
         return item
+    '''
